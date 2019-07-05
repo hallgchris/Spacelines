@@ -4,6 +4,8 @@
 
 #include "Board.h"
 
+#include <string>
+
 Board::Board(int size) {
     this->board_ = new CellState*[size];
     for (int i = 0; i < size; ++i) {
@@ -36,7 +38,61 @@ bool Board::makeMove(int x, int y) {
         return false;
     this->board_[x][y] = this->getNextMove();
     this->endMove();
+    Serial.println(this->toString().c_str());
     return true;
+}
+
+void Board::showCube(Cube *cube) const {
+    cube->clear();
+
+    int baseX = 1;
+    int baseY = 4;
+    int baseZ = 1;
+
+    for (int x = 0; x < this->size_; ++x)
+        for (int y = 0; y < this->size_; ++y) {
+            auto color = Board::getCellColor(this->board_[x][y]);
+            cube->setLed(color, baseX + x, baseY, baseZ + y);
+        }
+}
+
+std::string Board::toString() const {
+    std::string result;
+    for (int y = 0; y < this->size_; ++y) {
+        for (int x = 0; x < this->size_; ++x)
+            result += Board::getCellSymbol(this->board_[x][y]);
+        result += '\n';
+    }
+    char stateStr[8];
+    sprintf(stateStr, "State: %d\n", (int) this->state_);
+    result += stateStr;
+    return result;
+}
+
+CRGB Board::getCellColor(CellState cellState) {
+    switch (cellState) {
+        case NONE:
+            return CRGB::Black;
+        case NAUGHT:
+            return CRGB::Red;
+        case CROSS:
+            return CRGB::Blue;
+        case WINNING_LINE:
+            return CRGB::White;
+    }
+}
+
+char Board::getCellSymbol(CellState cellState) {
+    switch (cellState) {
+        case NONE:
+            return ' ';
+        case NAUGHT:
+            return 'O';
+        case CROSS:
+            return 'X';
+        case WINNING_LINE:
+            return '#';
+    }
 }
 
 bool Board::validMove(int x, int y) const {
@@ -75,32 +131,35 @@ bool Board::checkVictory() {
     static int threetwoone[3] = {2, 1, 0};
 
     for (int y = 0; y < this->size_; ++y)
-        if (this->board_[0][y] == this->board_[1][y] && this->board_[1][y] == this->board_[2][y]) {
+        if (this->board_[0][y] != NONE && this->board_[0][y] == this->board_[1][y] && this->board_[1][y] == this->board_[2][y]) {
             const int yrange[3] = {y, y, y};
             this->setWinner(onetwothree, yrange);
             return true;
         }
     // Check each column
     for (int x = 0; x < this->size_; ++x)
-        if (this->board_[x][0] == this->board_[x][1] && this->board_[x][1] == this->board_[x][2]) {
+        if (this->board_[x][0] != NONE && this->board_[x][0] == this->board_[x][1] && this->board_[x][1] == this->board_[x][2]) {
             const int xrange[3] = {x, x, x};
             this->setWinner(xrange, onetwothree);
             return true;
         }
     // Check diagonals
-    if (this->board_[0][0] == this->board_[1][1] && this->board_[1][1] == this->board_[2][2]) {
-        this->setWinner(onetwothree, onetwothree);
-        return true;
-    }
-    if (this->board_[0][2] == this->board_[1][1] && this->board_[1][1] == this->board_[2][0]) {
-        this->setWinner(onetwothree, threetwoone);
-        return true;
+    if (this->board_[1][1] != NONE) {
+        if (this->board_[0][0] == this->board_[1][1] && this->board_[1][1] == this->board_[2][2]) {
+            this->setWinner(onetwothree, onetwothree);
+            return true;
+        }
+        if (this->board_[0][2] == this->board_[1][1] && this->board_[1][1] == this->board_[2][0]) {
+            this->setWinner(onetwothree, threetwoone);
+            return true;
+        }
     }
     // Check for draw
     int count = 0;
     for (int x = 0; x < this->size_; ++x)
         for (int y = 0; y < this->size_; ++y)
-            count++;
+            if (this->board_[x][y] != NONE)
+                count++;
     if (count == 9) {
         this->setDraw();
         return true;

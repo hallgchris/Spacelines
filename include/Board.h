@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "Cube.h"
+
 enum CellState {
     NONE,
     NAUGHT,
@@ -30,7 +32,13 @@ public:
 
     bool makeMove(int x, int y);
 
+    void showCube(Cube *cube) const;
+    std::string toString() const;
+
 private:
+    static CRGB getCellColor(CellState cellState);
+    static char getCellSymbol(CellState cellState);
+
     bool validMove(int x, int y) const;
     CellState getNextMove() const;
     void endMove();
