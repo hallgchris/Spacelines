@@ -4,6 +4,7 @@
 
 #pragma once
 
+#define FASTLED_ALLOW_INTERRUPTS 0
 #include <FastLED.h>
 
 class Cube {
@@ -16,7 +17,7 @@ public:
     void clear();
     void fade(uint8_t rate);
 
-    static void update();
+    void update();
 
 private:
     static const int kNumLeds = kSize * kSize * kSize;
@@ -24,9 +25,11 @@ private:
     static const int kLedPin = 2;
     static const int kDimmerPotPin = A0;
 
-    static void updateBrightness();
-
     static int xyz(int x, int y, int z);
 
+    void updateBrightness();
+
     CRGBArray<kNumLeds> leds_;
+    int prev_brightness_ = 0;
+    bool cube_updated = false;
 };

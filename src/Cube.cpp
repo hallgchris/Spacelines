@@ -11,11 +11,13 @@ Cube::Cube() {
 
 void Cube::setLed(const CRGB& color, int x, int y, int z) {
     this->leds_[xyz(x, y, z)] = color;
+    this->cube_updated = true;
 }
 
 void Cube::clear() {
     for (int i = 0; i < Cube::kNumLeds; ++i)
         this->leds_[i] = CRGB::Black;
+    this->cube_updated = true;
 }
 
 void Cube::fade(uint8_t rate) {
@@ -23,8 +25,10 @@ void Cube::fade(uint8_t rate) {
 }
 
 void Cube::update() {
-    Cube::updateBrightness();
-    FastLED.show();
+    this->updateBrightness();
+    if (this->cube_updated)
+        FastLED.show();
+    this->cube_updated = false;
 }
 
 int Cube::xyz(int x, int y, int z) {
@@ -42,5 +46,11 @@ int Cube::xyz(int x, int y, int z) {
 }
 
 void Cube::updateBrightness() {
-    FastLED.setBrightness(static_cast<uint8_t>(map(analogRead(Cube::kDimmerPotPin), 0, 1023, 0, 255)));
+    auto new_value = map(analogRead(Cube::kDimmerPotPin), 0, 1023, 0, 255);
+    // Try to reduce flickering on low brightnesses due to noise on pot input
+    if (abs(new_value - this->prev_brightness_) > 1) {
+        FastLED.setBrightness(static_cast<uint8_t>(new_value));
+        this->prev_brightness_ = new_value;
+        this->cube_updated = true;
+    }
 }
