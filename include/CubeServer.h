@@ -15,9 +15,12 @@ public:
     void updateCube();
 
 private:
-    void handleRoot();
-    void handleNotFound();
+    void handleLoadPage();
     void handleMove();
+    void handleGetSize();
+
+    static String getContentType(const String& filename);
+    bool handleFileRead(String path);
 
     ESP8266WiFiMulti wiFiMulti_;
     ESP8266WebServer *server_;

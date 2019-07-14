@@ -21,33 +21,43 @@ enum BoardState {
     DRAW,
 };
 
+struct BoardDimensions {
+    int side_length;
+    int dimensions;
+};
+
 class Board {
 public:
-    explicit Board(int size);
+    explicit Board(BoardDimensions dimensions);
     ~Board();
 
-    CellState **getBoard() const;
-    int getSize() const;
+    CellState ***getBoard() const;
+    BoardDimensions getDimensions() const;
     BoardState getState() const;
 
-    bool makeMove(int x, int y);
+    bool makeMove(int x, int y, int z);
 
-    void showCube(Cube *cube) const;
+    virtual void showCube(Cube *cube) const = 0;
     std::string toString() const;
 
-private:
+protected:
+    virtual bool validMove(int x, int y, int z) const = 0;
+    virtual bool checkVictory() = 0;
+
+    void setDraw();
+    void setWinner(const int xrange[], const int yrange[], const int zrange[]);
+
+    CellState ***board_;
+    BoardDimensions dimensions_{};
+
     static CRGB getCellColor(CellState cellState);
+
+private:
     static char getCellSymbol(CellState cellState);
 
-    bool validMove(int x, int y) const;
     CellState getNextMove() const;
     void endMove();
-    bool checkVictory();
-    void setWinner(const int xrange[], const int yrange[]);
-    void setDraw();
 
-    int size_;
-    CellState **board_;
     BoardState state_;
 };
 

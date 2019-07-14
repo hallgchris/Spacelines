@@ -5,10 +5,10 @@
 #include <Arduino.h>
 #include <FastLED.h>
 #include <Cube.h>
-#include <Board.h>
 #include <CubeServer.h>
 #include <ESP8266mDNS.h>
 #include <ArduinoOTA.h>
+#include "Board3x3.h"
 
 const int kUpdateInterval = 20; // ms
 
@@ -44,13 +44,15 @@ void setup() {
 
     // Setup and show board on cube
     auto cube = new Cube();
-    auto board = new Board(3);
+    auto board = new Board3x3();
     board->showCube(cube);
     cube->update();
 
     // Networking
     cubeServer = new CubeServer(board, cube);
     setupOTA();
+
+    Serial.println();
 }
 
 void demo(Cube cube) {
