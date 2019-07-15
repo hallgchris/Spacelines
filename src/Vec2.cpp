@@ -50,7 +50,7 @@ void Vec2::setY(int y) {
 }
 
 Vec2 Vec2::withX(int x) const {
-    return {x, this->x_};
+    return {x, this->y_};
 }
 
 Vec2 Vec2::withY(int y) const {

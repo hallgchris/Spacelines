@@ -59,7 +59,7 @@ void Vec3::setZ(int z) {
 }
 
 Vec3 Vec3::withX(int x) const {
-    return {x, this->x_, this->z_};
+    return {x, this->y_, this->z_};
 }
 
 Vec3 Vec3::withY(int y) const {
@@ -67,7 +67,7 @@ Vec3 Vec3::withY(int y) const {
 }
 
 Vec3 Vec3::withZ(int z) const {
-    return {this->x_, this->x_, z};
+    return {this->x_, this->y_, z};
 }
 
 String Vec3::toString() const
