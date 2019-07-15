@@ -8,6 +8,7 @@
 #include <CubeServer.h>
 #include <ESP8266mDNS.h>
 #include <ArduinoOTA.h>
+#include <Board3x3x3.h>
 #include "Board3x3.h"
 
 const int kUpdateInterval = 20; // ms
@@ -44,7 +45,7 @@ void setup() {
 
     // Setup and show board on cube
     auto cube = new Cube();
-    auto board = new Board3x3();
+    auto board = new Board3x3x3();
     board->showCube(cube);
     cube->update();
 
@@ -62,7 +63,7 @@ void demo(Cube cube) {
             for (uint8_t y = 0; y < Cube::kSize; y++)
             {
                 cube.fade(20);
-                cube.setLed(CHSV(hue++, 255, 255), x, y, z);
+                cube.setLed(Vec3(x, y, z), CHSV(hue++, 255, 255));
                 cube.update();
                 delay(kUpdateInterval);
             }

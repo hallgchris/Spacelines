@@ -3,9 +3,6 @@
 //
 
 #include "Board.h"
-#include "Board3x3.h"
-
-#include <string>
 
 Board::Board(BoardDimensions dimensions) {
     this->board_ = new CellState**[dimensions.side_length];
@@ -40,22 +37,22 @@ BoardState Board::getState() const {
     return this->state_;
 }
 
-bool Board::makeMove(int x, int y, int z) {
-    if (!this->validMove(x, y, z))
+bool Board::makeMove(Vec3 pos) {
+    if (!this->validMove(pos))
         return false;
-    this->board_[x][y][z] = this->getNextMove();
-    this->endMove();
+    this->setPos(pos, this->getNextMove());
+    this->endMove(pos);
     Serial.println(this->toString().c_str());
     return true;
 }
 
-std::string Board::toString() const {
-    std::string result;
-    for (int z = 0; z < this->dimensions_.side_length; ++z) {
-        for (int y = 0; y < this->dimensions_.side_length; ++y) {
+String Board::toString() const {
+    String result;
+    for (int y = 0; y < this->dimensions_.side_length; ++y) {
+        for (int z = 0; z < this->dimensions_.side_length; ++z) {
             for (int x = 0; x < this->dimensions_.side_length; ++x)
                 result += Board::getCellSymbol(this->board_[x][y][z]);
-            result += '\n';
+            result += " | ";
         }
         result += '\n';
     }
@@ -102,9 +99,9 @@ CellState Board::getNextMove() const {
     }
 }
 
-void Board::endMove() {
+void Board::endMove(Vec3 move) {
     // Don't update the move if somebody wins
-    if (this->checkVictory())
+    if (this->checkVictory(move))
         return;
 
     if (this->state_ == NAUGHTS_MOVE)
@@ -113,18 +110,28 @@ void Board::endMove() {
         this->state_ = NAUGHTS_MOVE;
 }
 
-void Board::setWinner(const int xrange[], const int yrange[], const int zrange[]) {
+CellState Board::getPos(Vec3 pos) const {
+    return this->board_[pos.getX()][pos.getY()][pos.getZ()];
+}
+
+void Board::setPos(Vec3 pos, CellState value) {
+    this->board_[pos.getX()][pos.getY()][pos.getZ()] = value;
+}
+
+void Board::setWinner(const Vec3 winning_line[]) {
     // Change the board state
-    auto winner = this->board_[xrange[0]][yrange[0]][zrange[0]];
+    auto winner = this->getPos(winning_line[0]);
     if (winner == NAUGHT)
-        this->state_ = NAUGHTS_MOVE;
+        this->state_ = NAUGHTS_WIN;
     else if (winner == CROSS)
         this->state_ = CROSSES_WIN;
 
     // Change state of the cells that caused the win
-    for (int i = 0; i < this->dimensions_.side_length; ++i) {
-        this->board_[xrange[i]][yrange[i]][zrange[i]] = WINNING_LINE;
-    }
+    for (int i = 0; i < this->dimensions_.side_length; ++i)
+        this->setPos(winning_line[i], WINNING_LINE);
+
+    // Avoid memory leak
+    delete [] winning_line;
 }
 
 void Board::setDraw() {

@@ -3,14 +3,15 @@
 //
 
 #include "Cube.h"
+#include "Vec3.h"
 
 Cube::Cube() {
     CFastLED::addLeds<PL9823, Cube::kLedPin>(this->leds_, Cube::kNumLeds);
     FastLED.show();
 }
 
-void Cube::setLed(const CRGB& color, int x, int y, int z) {
-    this->leds_[xyz(x, y, z)] = color;
+void Cube::setLed(Vec3 pos, const CRGB &color) {
+    this->leds_[xyz(pos)] = color;
     this->cube_updated = true;
 }
 
@@ -31,8 +32,9 @@ void Cube::update() {
     this->cube_updated = false;
 }
 
-int Cube::xyz(int x, int y, int z) {
+int Cube::xyz(Vec3 pos) {
     int i;
+    int x = pos.getX(); int y = pos.getY(); int z = pos.getZ();
 
     // Check for odd numbered vertical rows to take care of cube's zig-zag wiring
     if (z % 2 == 1)

@@ -2,6 +2,8 @@
 // Created by christopher on 14/07/19.
 //
 
+#pragma once
+
 #include <Board.h>
 #include "Cube.h"
 
@@ -12,8 +14,8 @@ public:
     void showCube(Cube *cube) const override;
 
 private:
-    bool validMove(int x, int y, int z) const override;
-    bool checkVictory() override;
+    bool validMove(Vec3 pos) const override;
+    bool checkVictory(Vec3 prev) override;
 };
 
 

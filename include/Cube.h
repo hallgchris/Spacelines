@@ -6,6 +6,7 @@
 
 #define FASTLED_ALLOW_INTERRUPTS 0
 #include <FastLED.h>
+#include "Vec3.h"
 
 class Cube {
 public:
@@ -13,7 +14,7 @@ public:
 
     Cube();
 
-    void setLed(const CRGB& color, int x, int y, int z);
+    void setLed(Vec3 pos, const CRGB &color);
     void clear();
     void fade(uint8_t rate);
 
@@ -25,7 +26,7 @@ private:
     static const int kLedPin = 2;
     static const int kDimmerPotPin = A0;
 
-    static int xyz(int x, int y, int z);
+    static int xyz(Vec3 pos);
 
     void updateBrightness();
 

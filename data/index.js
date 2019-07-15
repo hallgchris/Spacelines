@@ -21,7 +21,7 @@ function createMoveTables(side_length, dimensions) {
     let tableHtml = "";
 
     if (dimensions === 3)
-        for (let z = 0; z < side_length; z++)
+        for (let z = side_length - 1; z >= 0; z--)
             tableHtml += `<p>Layer ${z}</p><table>${createMoveTable(side_length, z)}</table>`;
     else if (dimensions === 2)
         tableHtml += `<table>${createMoveTable(side_length)}</table>`;

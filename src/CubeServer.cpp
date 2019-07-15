@@ -64,7 +64,9 @@ void CubeServer::handleMove() {
     int x = strtol(this->server_->arg("x").c_str(), nullptr, 10);
     int y = strtol(this->server_->arg("y").c_str(), nullptr, 10);
     int z = strtol(this->server_->arg("z").c_str(), nullptr, 10);
-    this->board_->makeMove(x, y, z);
+    const Vec3 &move = Vec3(x, y, z);
+    Serial.println("Move from " + this->server_->client().remoteIP().toString() + ": " + move);
+    this->board_->makeMove(move);
     this->board_->showCube(cube_);
     this->server_->send(204, "text/plain");
 }

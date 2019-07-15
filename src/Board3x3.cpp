@@ -3,68 +3,60 @@
 //
 
 #include <string>
+#include "Vec2.h"
 #include "Board.h"
 #include "Board3x3.h"
 
 void Board3x3::showCube(Cube *cube) const {
     cube->clear();
 
-    int baseX = 1;
-    int baseY = 4;
-    int baseZ = 1;
+    Vec3 base = Vec3(1, 4, 1);
 
     for (int x = 0; x < this->dimensions_.side_length; ++x)
         for (int y = 0; y < this->dimensions_.side_length; ++y) {
-            auto color = getCellColor(this->board_[x][y][0]);
-            cube->setLed(color, baseX + x, baseY, baseZ + y);
+            auto color = getCellColor(this->getPos(Vec2(x, y)));
+            cube->setLed(base + Vec3(x, 0, y), color);
         }
 }
 
-bool Board3x3::validMove(int x, int y, int z) const {
-    if (x < 0 || x >= this->dimensions_.side_length)
+bool Board3x3::validMove(Vec3 pos) const {
+    if (pos.getX() < 0 || pos.getX() >= this->dimensions_.side_length)
         return false;
-    if (y < 0 || y >= this->dimensions_.side_length)
+    if (pos.getY() < 0 || pos.getY() >= this->dimensions_.side_length)
         return false;
-    if (z != 0)
+    if (pos.getZ() != 0)
         return false;
-    return this->board_[x][y][0] == NONE;
+    return this->getPos(pos) == NONE;
 }
 
-bool Board3x3::checkVictory() {
-    // Check each row:
-    static int onetwothree[3] = {0, 1, 2};
-    static int threetwoone[3] = {2, 1, 0};
-    static int zeros[3] = {0, 0, 0};
-
-    for (int y = 0; y < this->dimensions_.side_length; ++y)
-        if (this->board_[0][y][0] != NONE && this->board_[0][y][0] == this->board_[1][y][0] && this->board_[1][y][0] == this->board_[2][y][0]) {
-            const int yrange[3] = {y, y, y};
-            this->setWinner(onetwothree, yrange, zeros);
-            return true;
-        }
-    // Check each column
-    for (int x = 0; x < this->dimensions_.side_length; ++x)
-        if (this->board_[x][0][0] != NONE && this->board_[x][0][0] == this->board_[x][1][0] && this->board_[x][1][0] == this->board_[x][2][0]) {
-            const int xrange[3] = {x, x, x};
-            this->setWinner(xrange, onetwothree, zeros);
-            return true;
-        }
+bool Board3x3::checkVictory(Vec3 prev) {
+    // Check row
+    if (this->getPos(prev.withX(0)) != NONE && this->getPos(prev.withX(0)) == this->getPos(prev.withX(1)) && this->getPos(prev.withX(1)) == this->getPos(prev.withX(2))) {
+        this->setWinner(new Vec3[3] { prev.withX(0), prev.withX(1), prev.withX(2) });
+        return true;
+    }
+    // Check column
+    if (this->getPos(prev.withY(0)) != NONE && this->getPos(prev.withY(0)) == this->getPos(prev.withY(1)) && this->getPos(prev.withY(1)) == this->getPos(prev.withY(2))) {
+        this->setWinner(new Vec3[3] { prev.withY(0), prev.withY(1), prev.withY(2) });
+        return true;
+    }
     // Check diagonals
-    if (this->board_[1][1][0] != NONE) {
-        if (this->board_[0][0][0] == this->board_[1][1][0] && this->board_[1][1][0] == this->board_[2][2][0]) {
-            this->setWinner(onetwothree, onetwothree, zeros);
+    if (this->getPos(Vec2(1, 1)) != NONE) {
+        if (this->getPos(Vec2(0, 0)) == this->getPos(Vec2(1, 1)) && this->getPos(Vec2(1, 1)) == this->getPos(Vec2(2, 2))) {
+            this->setWinner(new Vec3[3] { Vec2(0, 0), Vec2(1, 1), Vec2(2, 2)});
             return true;
         }
-        if (this->board_[0][2][0] == this->board_[1][1][0] && this->board_[1][1][0] == this->board_[2][0][0]) {
-            this->setWinner(onetwothree, threetwoone, zeros);
+        if (this->getPos(Vec2(2, 0)) == this->getPos(Vec2(1, 1)) && this->getPos(Vec2(1, 1)) == this->getPos(Vec2(0, 2))) {
+            this->setWinner(new Vec3[3] { Vec2(2, 0), Vec2(1, 1), Vec2(0, 2)});
             return true;
         }
     }
+
     // Check for draw
     int count = 0;
     for (int x = 0; x < this->dimensions_.side_length; ++x)
         for (int y = 0; y < this->dimensions_.side_length; ++y)
-            if (this->board_[x][y][0] != NONE)
+            if (this->getPos(Vec2(x, y)) != NONE)
                 count++;
     if (count == 9) {
         this->setDraw();

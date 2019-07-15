@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <Vec3.h>
 #include "Cube.h"
 
 enum CellState {
@@ -35,17 +36,20 @@ public:
     BoardDimensions getDimensions() const;
     BoardState getState() const;
 
-    bool makeMove(int x, int y, int z);
+    bool makeMove(Vec3 pos);
 
     virtual void showCube(Cube *cube) const = 0;
-    std::string toString() const;
+    String toString() const;
 
 protected:
-    virtual bool validMove(int x, int y, int z) const = 0;
-    virtual bool checkVictory() = 0;
+    virtual bool validMove(Vec3 pos) const = 0;
+    virtual bool checkVictory(Vec3 prev_move) = 0;
+
+    CellState getPos(Vec3 pos) const;
+    void setPos(Vec3 pos, CellState value);
 
     void setDraw();
-    void setWinner(const int xrange[], const int yrange[], const int zrange[]);
+    void setWinner(const Vec3 winning_line[]);
 
     CellState ***board_;
     BoardDimensions dimensions_{};
@@ -56,7 +60,7 @@ private:
     static char getCellSymbol(CellState cellState);
 
     CellState getNextMove() const;
-    void endMove();
+    void endMove(Vec3 move);
 
     BoardState state_;
 };
