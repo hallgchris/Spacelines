@@ -30,7 +30,9 @@ struct BoardDimensions {
 class Board {
 public:
     explicit Board(BoardDimensions dimensions);
-    ~Board();
+    virtual ~Board();
+
+    void reset();
 
     CellState ***getBoard() const;
     BoardDimensions getDimensions() const;
@@ -57,6 +59,9 @@ protected:
     static CRGB getCellColor(CellState cellState);
 
 private:
+    void initBoard(BoardDimensions dimensions);
+    void deleteBoard();
+
     static char getCellSymbol(CellState cellState);
 
     CellState getNextMove() const;

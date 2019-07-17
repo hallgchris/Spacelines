@@ -18,6 +18,7 @@ private:
     void handleLoadPage();
     void handleMove();
     void handleGetSize();
+    void handleReset();
 
     static String getContentType(const String& filename);
     bool handleFileRead(String path);

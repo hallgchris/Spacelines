@@ -34,6 +34,7 @@ CubeServer::CubeServer(Board *board, Cube *cube) {
     this->server_ = new ESP8266WebServer(80);
     this->server_->on("/move", HTTP_POST, std::bind(&CubeServer::handleMove, this));
     this->server_->on("/getsize", HTTP_GET, std::bind(&CubeServer::handleGetSize, this));
+    this->server_->on("/reset", HTTP_GET, std::bind(&CubeServer::handleReset, this));
     this->server_->onNotFound(std::bind(&CubeServer::handleLoadPage, this));
     this->server_->begin();
 
@@ -76,6 +77,12 @@ void CubeServer::handleGetSize() {
             R"({"size":")" + String(this->board_->getDimensions().side_length) +
             R"(","dimensions":")" + String(this->board_->getDimensions().dimensions) + "\"}";
     this->server_->send(200, "application/json", json);
+}
+
+void CubeServer::handleReset() {
+    this->board_->reset();
+    this->board_->showCube(this->cube_);
+    this->server_->send(204, "text/plain");
 }
 
 String CubeServer::getContentType(const String& filename) {

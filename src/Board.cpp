@@ -5,17 +5,28 @@
 #include "Board.h"
 
 Board::Board(BoardDimensions dimensions) {
+    initBoard(dimensions);
+}
+
+Board::~Board() {
+    deleteBoard();
+}
+
+void Board::initBoard(BoardDimensions dimensions) {
     this->board_ = new CellState**[dimensions.side_length];
     for (int i = 0; i < dimensions.side_length; ++i) {
         this->board_[i] = new CellState*[dimensions.side_length];
         for (int j = 0; j < dimensions.side_length; ++j) {
             this->board_[i][j] = new CellState[dimensions.side_length];
+            for (int k = 0; k < dimensions.side_length; ++k)
+                this->board_[i][j][k] = NONE;
         }
     }
     this->dimensions_ = dimensions;
     this->state_ = NAUGHTS_MOVE;
 }
-Board::~Board() {
+
+void Board::deleteBoard() {
     for (int i = 0; i < this->dimensions_.side_length; ++i) {
         for (int j = 0; j < this->dimensions_.side_length; ++j) {
             delete [] this->board_[i][j];
@@ -23,6 +34,11 @@ Board::~Board() {
         delete [] this->board_[i];
     }
     delete [] this->board_;
+}
+
+void Board::reset() {
+    deleteBoard();
+    initBoard(this->dimensions_);
 }
 
 BoardDimensions Board::getDimensions() const {
