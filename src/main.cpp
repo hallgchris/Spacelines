@@ -9,6 +9,7 @@
 #include <ESP8266mDNS.h>
 #include <ArduinoOTA.h>
 #include <Board3x3x3.h>
+#include <Board5x5x5.h>
 #include "Board3x3.h"
 
 const int kUpdateInterval = 20; // ms
@@ -45,7 +46,7 @@ void setup() {
 
     // Setup and show board on cube
     auto cube = new Cube();
-    auto board = new Board3x3x3();
+    auto board = new Board5x5x5();
     board->showCube(cube);
     cube->update();
 
