@@ -31,36 +31,22 @@ bool Board3x3::validMove(Vec3 pos) const {
 
 bool Board3x3::checkVictory(Vec3 prev) {
     // Check row
-    if (this->getPos(prev.withX(0)) != NONE && this->getPos(prev.withX(0)) == this->getPos(prev.withX(1)) && this->getPos(prev.withX(1)) == this->getPos(prev.withX(2))) {
-        this->setWinner(new Vec3[3] { prev.withX(0), prev.withX(1), prev.withX(2) });
+    if (this->checkLine({prev.withX(0), prev.withX(1), prev.withX(2)}))
         return true;
-    }
     // Check column
-    if (this->getPos(prev.withY(0)) != NONE && this->getPos(prev.withY(0)) == this->getPos(prev.withY(1)) && this->getPos(prev.withY(1)) == this->getPos(prev.withY(2))) {
-        this->setWinner(new Vec3[3] { prev.withY(0), prev.withY(1), prev.withY(2) });
+    if (this->checkLine({prev.withY(0), prev.withY(1), prev.withY(2)}))
         return true;
-    }
     // Check diagonals
-    if (this->getPos(Vec2(1, 1)) != NONE) {
-        if (this->getPos(Vec2(0, 0)) == this->getPos(Vec2(1, 1)) && this->getPos(Vec2(1, 1)) == this->getPos(Vec2(2, 2))) {
-            this->setWinner(new Vec3[3] { Vec2(0, 0), Vec2(1, 1), Vec2(2, 2)});
-            return true;
-        }
-        if (this->getPos(Vec2(2, 0)) == this->getPos(Vec2(1, 1)) && this->getPos(Vec2(1, 1)) == this->getPos(Vec2(0, 2))) {
-            this->setWinner(new Vec3[3] { Vec2(2, 0), Vec2(1, 1), Vec2(0, 2)});
-            return true;
-        }
-    }
+    if (prev.getX() == prev.getY() && this->checkLine({Vec2(0, 0), Vec2(1, 1), Vec2(2, 2)}))
+        return true;
+    if (prev.getX() + prev.getY() == 2 && this->checkLine({Vec2(2, 0), Vec2(1, 1), Vec2(0, 2)}))
+        return true;
 
     // Check for draw
-    int count = 0;
     for (int x = 0; x < this->dimensions_.side_length; ++x)
         for (int y = 0; y < this->dimensions_.side_length; ++y)
-            if (this->getPos(Vec2(x, y)) != NONE)
-                count++;
-    if (count == 9) {
-        this->setDraw();
-        return true;
-    }
-    return false;
+            if (this->getPos(Vec2(x, y)) == NONE)
+                return false;
+    this->setDraw();
+    return true;
 }

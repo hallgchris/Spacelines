@@ -44,6 +44,8 @@ public:
     String toString() const;
 
 protected:
+    bool checkLine(std::vector<Vec3> line);
+
     virtual bool validMove(Vec3 pos) const = 0;
     virtual bool checkVictory(Vec3 prev_move) = 0;
 
@@ -51,7 +53,7 @@ protected:
     void setPos(Vec3 pos, CellState value);
 
     void setDraw();
-    void setWinner(const Vec3 winning_line[]);
+    void setWinner(std::vector<Vec3> winning_line);
 
     CellState ***board_;
     BoardDimensions dimensions_{};

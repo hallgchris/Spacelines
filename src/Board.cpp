@@ -78,6 +78,16 @@ String Board::toString() const {
     return result;
 }
 
+bool Board::checkLine(std::vector<Vec3> line) {
+    if (this->getPos(line[0]) == NONE)
+        return false;
+    for (int i = 0; i < line.size() - 1; ++i)
+        if (this->getPos(line[i]) != this->getPos(line[i + 1]))
+            return false;
+    setWinner(line);
+    return true;
+}
+
 CRGB Board::getCellColor(CellState cellState) {
     switch (cellState) {
         case NONE:
@@ -134,7 +144,7 @@ void Board::setPos(Vec3 pos, CellState value) {
     this->board_[pos.getX()][pos.getY()][pos.getZ()] = value;
 }
 
-void Board::setWinner(const Vec3 winning_line[]) {
+void Board::setWinner(std::vector<Vec3> winning_line) {
     // Change the board state
     auto winner = this->getPos(winning_line[0]);
     if (winner == NAUGHT)
@@ -145,9 +155,6 @@ void Board::setWinner(const Vec3 winning_line[]) {
     // Change state of the cells that caused the win
     for (int i = 0; i < this->dimensions_.side_length; ++i)
         this->setPos(winning_line[i], WINNING_LINE);
-
-    // Avoid memory leak
-    delete [] winning_line;
 }
 
 void Board::setDraw() {
